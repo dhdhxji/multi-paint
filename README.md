@@ -1,1 +1,2 @@
-# multi-paint
+# Multi-paint server. Multiplayer paint server
+This project was developed for lab. There is multi user multi-thread server application for simultaneously receiving and processing draw commands from multiple users.
