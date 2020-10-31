@@ -72,3 +72,14 @@ Output commands:
     }
   }
   ```
+* Set strip. sent data is sequence of colors starting from specified point
+  ```json
+  {
+    "commnad": "strip",
+    "command-data": {
+      "start-x": 42,
+      "start-y": 42,
+      "pixels": [42, 42, 42, 42]
+    }
+  }
+  ```
