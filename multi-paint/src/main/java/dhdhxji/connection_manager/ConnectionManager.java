@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.sql.ClientInfoStatus;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
@@ -53,6 +52,7 @@ public class ConnectionManager extends Thread {
 
         //Start sending thread
         Sender sendThread = new Sender();
+        sendThread.setName("sender");
         sendThread.start();
 
         //allow new connections
@@ -69,9 +69,10 @@ public class ConnectionManager extends Thread {
 
                 IdItemHandle client_handle = _clients.add(client);
                 _client_handles.add(client_handle);
-                ClientListener l = new ClientListener(client_handle);
-
+                
                 //run new listening thread
+                ClientListener l = new ClientListener(client_handle);
+                l.setName("listener");
                 l.start();
 
             } catch(SocketTimeoutException e) {
@@ -144,7 +145,9 @@ public class ConnectionManager extends Thread {
     class Sender extends Thread {
         private void send(Message msg, IdItemHandle h) {
             try {
-                _clients.get(h).write.write(msg.message + "\n");
+                Client client = _clients.get(h);
+                client.write.write(msg.message + "\n");
+                client.write.flush();
             } catch(IOException e) {
                 //disconnected
                 freeClientResources(h);
