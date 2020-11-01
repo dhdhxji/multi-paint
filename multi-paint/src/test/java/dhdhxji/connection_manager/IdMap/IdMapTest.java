@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.NoSuchElementException;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,7 +94,7 @@ public class IdMapTest {
         final IdMap<Integer> testMap = new IdMap<Integer>();
         final Vector<IdItemHandle> handles = new Vector<IdItemHandle>();
 
-        final int threadCount = 3;
+        final int threadCount = 30;
         final int objectsCount = 100;
 
         assertEquals(0, objectsCount%2);
@@ -124,5 +125,54 @@ public class IdMapTest {
         }
 
         assertEquals(((objectsCount-1)*(objectsCount/2))*threadCount, total);
+    }
+
+    @Test
+    public void testConcurrentRemove() {
+        final IdMap<Integer> testMap = new IdMap<Integer>();
+        final ConcurrentLinkedQueue<IdItemHandle> handles = 
+                new ConcurrentLinkedQueue<IdItemHandle>();
+        
+        final int loopNumber = 3000;
+        final int threadCount = 50;
+
+        for(int i = 0; i < loopNumber; ++i) {
+            handles.add(testMap.add(i));
+        }
+
+        final ConcurrentLinkedQueue<IdItemHandle> testHandles = 
+        new ConcurrentLinkedQueue<IdItemHandle>(handles);
+
+        class TestingThread extends Thread {
+            public void run() {
+                while(true) {
+                    IdItemHandle h = handles.poll();
+                    if(h == null) {
+                        return;
+                    }
+                    testMap.remove(h);
+                }
+            }
+        }
+
+        TestingThread[] threads = new TestingThread[threadCount];
+        for(int i = 0; i < threadCount; ++i) {
+            threads[i] = new TestingThread();
+        }
+
+        for(int i = 0; i < threadCount; ++i) {
+            threads[i].start();
+        }
+
+        for(int i = 0; i < threadCount; ++i) {
+            try {
+                threads[i].join();
+            } catch(InterruptedException e) {}
+        }
+
+        for (IdItemHandle h : testHandles) {
+            exception.expect(NoSuchElementException.class);
+            testMap.get(h);
+        }
     }
 }
