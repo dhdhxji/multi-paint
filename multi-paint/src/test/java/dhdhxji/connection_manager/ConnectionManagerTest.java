@@ -47,7 +47,7 @@ public class ConnectionManagerTest {
 
     @AfterClass
     public static void stopServer() {
-        //TODO
+        _server.stopServer();
     }
 
     @Rule
@@ -60,7 +60,7 @@ public class ConnectionManagerTest {
         
         public Connection(String host) throws UnknownHostException, IOException {
             clientSock = new Socket(host, PORT);
-            clientSock.setSoTimeout(3000);
+            clientSock.setSoTimeout(200);
             in = new BufferedReader(new InputStreamReader(clientSock.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(clientSock.getOutputStream()));
         }
@@ -71,14 +71,15 @@ public class ConnectionManagerTest {
         Connection c = new Connection("localhost");
         c.clientSock.close();
 
-        //if there is no exception, oll is okay
+        //if there is no exception, all is okay
     }
 
     @Test
     public void testPingRequest() throws UnknownHostException, IOException {
         Connection c = new Connection("localhost");
 
-        c.out.write("echo");
+        c.out.write("echo\n");
+        c.out.flush();
         String response = c.in.readLine();
         c.clientSock.close();
 
@@ -90,12 +91,16 @@ public class ConnectionManagerTest {
         Connection c1 = new Connection("localhost");
         Connection c2 = new Connection("localhost");
 
-        c1.out.write("broadcast");
+        c1.out.write("broadcast\n");
+        c1.out.flush();
 
         String c1Resp = c1.in.readLine();
         String c2Resp = c2.in.readLine();
 
-        assertEquals("broadcast resp", c1Resp, "c1 connection not broadcast response: " + c1Resp);
-        assertEquals("broadcast resp", c2Resp, "c2 connection not broadcast response: " + c2Resp);
+        c1.clientSock.close();
+        c2.clientSock.close();
+
+        assertEquals("c1 connection not broadcast response: " + c1Resp, "broadcast resp", c1Resp);
+        assertEquals("c2 connection not broadcast response: " + c2Resp, "broadcast resp", c2Resp);
     }
 }
