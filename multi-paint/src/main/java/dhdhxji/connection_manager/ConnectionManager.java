@@ -190,6 +190,10 @@ public class ConnectionManager extends Thread {
             while(true) {
                 try {
                     String command = reader.readLine();
+                    if(command == null) {
+                        //end of the stream, connection closed
+                        throw new IOException();
+                    }
 
                     _commandHandler.process_command(
                         ConnectionManager.this,
