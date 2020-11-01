@@ -31,8 +31,8 @@ public class IdMap<T> {
     public T get(IdItemHandle h) throws NoSuchElementException {
         try {
             if( h.containerHash != System.identityHashCode(this) || 
-                _data.get(h.id).in_rent == false ||
-                h.itemHash !=System.identityHashCode(_data.get(h.id).data)) {
+                _data.get(h.id) == null ||
+                h.itemHash != System.identityHashCode(_data.get(h.id).data)) {
                 throw new NoSuchElementException();
             }
             
@@ -47,22 +47,23 @@ public class IdMap<T> {
     private void placeItem(IdItemHandle h, T data) {
         Item<T> item = new Item<T>();
         item.data = data;
-        item.in_rent = true;
+
+        final int requestedSize = h.id+1;
         
-        //if _data[id] is next element
-        if(h.id == _data.size()) {
-            _data.add(item);
-        } else if(h.id < _data.size()) {
-            _data.set(h.id, item);
+        while(_data.size() < requestedSize) {
+            _data.add(null);
         }
+
+        _data.set(h.id, item);
     }
 
     private void freeItem(IdItemHandle h) throws NoSuchElementException {
-        _data.get(h.id).in_rent = false;
-        _data.get(h.id).data = null;
+        synchronized(_mutex) {
+            _data.get(h.id).data = null;
+        }
     }
 
-    
+    private Object _mutex = new Object();
     private Vector<Item<T>> _data = new Vector<Item<T>>();
     private IdManager _idManager = new IdManager();
 }
@@ -70,7 +71,6 @@ public class IdMap<T> {
 
 
 class Item<T> {
-    public boolean in_rent;
     public T data;
 }
 
@@ -78,29 +78,39 @@ class Item<T> {
 
 class IdManager {
     public int getId() {
-        if(!_freeIds.isEmpty()) {
-            return _freeIds.poll();
-        } else {
-            synchronized(_mutex) {
+        synchronized(_mutex) {
+            if(!_freeIds.isEmpty()) {
+                return _freeIds.poll();
+            } else {
                 return _lastFreeId++;
             }
         }
     }
 
     public void freeId(int id) {
-        if(id == _lastFreeId -1) {
-            synchronized(_mutex) {
+        synchronized(_mutex) {
+            if(id >= _lastFreeId) {
+                return;
+            }
+
+            if(_freeIds.contains(id)) {
+                return;
+            }
+
+            if(id == _lastFreeId -1) {
                 _lastFreeId--;
+            } else {
+                _freeIds.add(id);
             }
 
             //clean id`s in free id queue
             if(!_freeIds.isEmpty()) {                
-                while(_freeIds.peek() == _lastFreeId-1) {
+                while(  _lastFreeId != 0 &&
+                        _freeIds.peek() == _lastFreeId-1) {
                     _freeIds.poll();
+                    _lastFreeId--;
                 }
             }
-        } else {
-            _freeIds.add(id);
         }
     }
 
