@@ -31,7 +31,6 @@ public class IdMapTest {
         IdItemHandle[] handles = generate_sequence(10, testmap);
 
         for(int i = 0; i < handles.length; ++i) {
-            System.out.print(i + testmap.get(handles[i]));
             assertEquals(i, (int)testmap.get(handles[i]));
         }
     }
