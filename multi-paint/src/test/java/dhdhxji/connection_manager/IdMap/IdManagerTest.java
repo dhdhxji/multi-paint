@@ -2,7 +2,6 @@ package dhdhxji.connection_manager.IdMap;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.junit.Test;
