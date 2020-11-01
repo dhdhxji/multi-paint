@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.sql.ClientInfoStatus;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -39,52 +42,99 @@ public class ConnectionManager extends Thread {
 
     @Override
     public void run() {
-        ServerSocket listen = null;
-
         try {
-            listen = new ServerSocket(_port);
+            _listenSocket = new ServerSocket(_port);
+            _listenSocket.setSoTimeout(1000);
+        }
+        catch(IOException e) {
+            System.err.print("Can not start connection maanger: " + e);
+            return;
+        }
 
-            //Start sending thread
-            Sender sendThread = new Sender();
-            sendThread.start();
+        //Start sending thread
+        Sender sendThread = new Sender();
+        sendThread.start();
 
-            //allow new connections
-            while(true) {
-                Socket sock = listen.accept();
+        //allow new connections
+        while(true) {
+            try {
+                Socket sock = _listenSocket.accept();
                 System.out.print("New client connection");
-                
+
                 //store client
                 Client client = new Client();
                 client.read = new BufferedReader(new InputStreamReader(sock.getInputStream()));
                 client.write = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-                
-                
+                client.sock = sock;
+
                 IdItemHandle client_handle = _clients.add(client);
                 _client_handles.add(client_handle);
+                ClientListener l = new ClientListener(client_handle);
 
                 //run new listening thread
-                new ClientListener(client_handle).start();
+                l.start();
+
+            } catch(SocketTimeoutException e) {
+                if(isInterrupted())
+                    break;
+                else
+                    continue;
+            } catch(IOException e) {
+                System.err.print("Can not accept new connection: " + e);
             }
         }
-        catch(IOException e) {
-            System.err.print("Can not start connection maanger: " + e);
-        }
-        finally {
-            try {
-                if(listen != null)
-                    listen.close();
-            }
-            catch(IOException e) {
-                System.err.print("Can`t close listening socket: " + e);
-            }
+
+        //disable listening
+        try {
+            _listenSocket.close();
+        } catch(IOException e) {}
+
+        //stop the sending thread
+        sendThread.interrupt();
+        try {
+            sendThread.join();
+        } catch(InterruptedException e) {}
+
+        //stop all client listener threads
+        for (IdItemHandle h : _client_handles) {
+            freeClientResources(h);
         }
     }
 
+    public void stopServer() {
+        this.interrupt();
+        try {
+            this.join();     
+        } catch (InterruptedException e) {}
+    }
 
+    /*
+    *       This method should close socket associates with client, so
+    *   IOException will be throwed in client listenning thread
+    *   and it will be closed.
+    */
+    private void freeClientResources(IdItemHandle h) {
+        try {
+            Client client = _clients.remove(h);
+            synchronized(_mutex) {
+                try {client.sock.shutdownOutput();  } catch(IOException e) {}
+                try {client.sock.shutdownInput();   } catch(IOException e) {}
+                try {client.write.close();          } catch(IOException e) {}
+                try {client.read.close();           } catch(IOException e) {}
+                try {client.sock.close();           } catch(IOException e) {}
+            }
+        } catch(NoSuchElementException e) {
+            //user does not exist
+        }
+    }
+
+    private Object _mutex = new Object();
 
     private ProcessCommandListener _commandHandler = null;
-    private int _port = 0;
     private BlockingQueue<SendingItem> _sendingQueue = new LinkedBlockingQueue<SendingItem>();
+    
+    private int _port = 0;
+    private ServerSocket _listenSocket = null;
 
     private IdMap<Client> _clients = new IdMap<Client>();
     private Queue<IdItemHandle> _client_handles = new ConcurrentLinkedQueue<IdItemHandle>();
@@ -97,7 +147,7 @@ public class ConnectionManager extends Thread {
                 _clients.get(h).write.write(msg.message + "\n");
             } catch(IOException e) {
                 //disconnected
-                _clients.remove(h);
+                freeClientResources(h);
             }    
         }
 
@@ -112,8 +162,13 @@ public class ConnectionManager extends Thread {
                     } else {
                         send(item.cmd, item.receiver);
                     }
+
+                    if(isInterrupted()) {
+                        throw new InterruptedException();
+                    }
                 } catch(InterruptedException e) {
-                    //do nothing
+                    //thread interrut from outside, exit
+                    return;
                 }          
             }
         }
@@ -140,7 +195,7 @@ public class ConnectionManager extends Thread {
                 }
                 catch (IOException e) {
                     System.err.print("Client disconnected");
-                    _clients.remove(_client_handle);
+                    freeClientResources(_client_handle);
                     return;
                 }
             }
@@ -151,6 +206,7 @@ public class ConnectionManager extends Thread {
 }
 
 class Client {
+    Socket sock;
     BufferedReader read;
     BufferedWriter write;
 }
