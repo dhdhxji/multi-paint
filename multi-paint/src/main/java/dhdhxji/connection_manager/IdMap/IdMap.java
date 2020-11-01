@@ -58,12 +58,9 @@ public class IdMap<T> {
     }
 
     private void freeItem(IdItemHandle h) throws NoSuchElementException {
-        synchronized(_mutex) {
-            _data.get(h.id).data = null;
-        }
+        _data.set(h.id, null);
     }
 
-    private Object _mutex = new Object();
     private Vector<Item<T>> _data = new Vector<Item<T>>();
     private IdManager _idManager = new IdManager();
 }
