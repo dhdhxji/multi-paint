@@ -85,3 +85,15 @@ Output commands:
     }
   }
   ```
+* Size. Tell size of the pixmap to client 
+```json
+{
+  "command": {
+    "commnad-name": "size",
+    "command-data": {
+      "w": 42,
+      "h": 42,
+    }
+  }
+}
+```
