@@ -29,6 +29,14 @@ public class DrawPixmap implements DrawInterface {
         }
     }
 
+    public int getWidth() {
+        return _width;
+    }
+
+    public int getHeigth() {
+        return _height;
+    }
+
     Object _mutex = new Object();
 
     int _width = 0;

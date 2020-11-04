@@ -41,4 +41,12 @@ public class DrawPixmapTest {
         exception.expect(IndexOutOfBoundsException.class);
         p.setPix(201, 201, 0);
     }
+
+    @Test
+    public void testSize() {
+        DrawPixmap p = new DrawPixmap(203, 204);
+
+        assertEquals(203, p.getWidth());
+        assertEquals(204, p.getHeigth());
+    }
 }
