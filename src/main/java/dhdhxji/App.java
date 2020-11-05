@@ -1,5 +1,9 @@
 package dhdhxji;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import dhdhxji.command.Resolver;
 import dhdhxji.connection_manager.ConnectionManager;
 import dhdhxji.pixmap.DrawInterface;
@@ -22,6 +26,27 @@ public class App
             new ConnectionManager(mainResolver, 3113);
 
         //Run the server
+        System.out.println("Starting the server");
         mainConnectionManager.start();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while(true) {
+            String cmd = null;
+            try {
+                System.out.print("> ");
+                cmd = in.readLine();
+            } catch(IOException e){
+                break;
+            }
+
+            if(cmd.equals("exit")){
+                break;
+            } else {
+                System.out.println("Unknown command. Type 'exit' for exit.");
+            }
+        }
+
+        mainConnectionManager.stopServer();
+        System.out.println("Server successfully stopped");
     }
 }
