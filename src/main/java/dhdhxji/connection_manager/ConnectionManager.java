@@ -151,7 +151,9 @@ public class ConnectionManager extends Thread {
             } catch(IOException e) {
                 //disconnected
                 freeClientResources(h);
-            }    
+            } catch(NoSuchElementException e) {
+                //client was disconnected
+            }
         }
 
         public void run() {
