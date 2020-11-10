@@ -7,7 +7,7 @@ public class DrawPixmap implements DrawInterface {
         _height = height;
 
         for(int i = 0; i < width*height; ++i) {
-            _pixmap[i] = 0;
+            _pixmap[i] = 0xffffff;
         }
     } 
 

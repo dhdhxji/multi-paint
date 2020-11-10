@@ -74,7 +74,7 @@ public class Resolver implements ProcessCommandListener {
             for(int x = 0; x < _drawer.getWidth(); ++x) {
                 int color = _drawer.getPix(x, y); 
                 
-                if(color != 0) {
+                if(color != 0xffffff) {
                     pix_to_send.add(color);
                 } else {
                     if(pix_to_send.size() != 0) {
