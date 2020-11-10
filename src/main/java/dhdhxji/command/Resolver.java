@@ -65,7 +65,11 @@ public class Resolver implements ProcessCommandListener {
                     final int chordArm = (int)Math.sqrt(sqPointRadius - yd*yd);
                     
                     for(int xd = -chordArm; xd < chordArm; ++xd) {
-                        _drawer.setPix(x+xd, y+yd, color);
+                        try {
+                            _drawer.setPix(x+xd, y+yd, color);
+                        } catch(IndexOutOfBoundsException e) {
+                            continue;
+                        }
                     }
                 }
 
@@ -76,7 +80,7 @@ public class Resolver implements ProcessCommandListener {
             //format
             System.err.print("Could not process command: " + command);
             System.err.print(e);
-        }
+        } catch(IndexOutOfBoundsException e) {}
     }
 
     private Message serializeCommand(Command cmd) throws InvalidObjectException {
