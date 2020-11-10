@@ -9,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import dhdhxji.command.marshaller.commandDataImpl.CircleCmd;
 import dhdhxji.command.marshaller.commandDataImpl.LoginCmd;
 import dhdhxji.command.marshaller.commandDataImpl.SetCmd;
 import dhdhxji.command.marshaller.commandDataImpl.SizeCmd;
@@ -22,7 +23,8 @@ public class MarshallerTest {
         testMarshal.registerCommand("set", SetCmd.class)
                    .registerCommand("login", LoginCmd.class)
                    .registerCommand("size", SizeCmd.class)
-                   .registerCommand("strip", StripCmd.class);
+                   .registerCommand("strip", StripCmd.class)
+                   .registerCommand("circle", CircleCmd.class);
     }
 
     @Test
@@ -75,6 +77,20 @@ public class MarshallerTest {
         Command deserialized = testMarshal.deserialize(serialized);
 
         assertEquals(cmd, deserialized);
+    }
+
+    @Test
+    public void testCircleMarshall() throws InvalidObjectException {
+        Command testCircle = new Command(
+            "circle", 
+            new CircleCmd(10, 10, 10, 500)
+        );
+
+        String serialized = testMarshal.serialize(testCircle);
+
+        Command deserialized = testMarshal.deserialize(serialized);
+
+        assertEquals(testCircle, deserialized);
     }
 
     @Test(expected = InvalidObjectException.class)
