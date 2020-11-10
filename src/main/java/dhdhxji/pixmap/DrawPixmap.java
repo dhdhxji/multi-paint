@@ -14,6 +14,9 @@ public class DrawPixmap implements DrawInterface {
 
     public void setPix(int x, int y, int color) throws IndexOutOfBoundsException {
         int index = y*_width + x;
+        if(index >= _pixmap.length || index < 0) {
+            return;
+        }
 
         synchronized(_mutex)
         {

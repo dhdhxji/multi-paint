@@ -62,6 +62,9 @@ public class Marshaller {
             ret.commandData = mapper.treeToValue(commandData, _classes.get(ret.commandName));
         } catch(JsonProcessingException e) {
             throw new InvalidObjectException(e.toString());
+        } catch(NullPointerException e) {
+            System.err.println("Deserialization class for '" + ret.commandName +"' did not refistered");
+            throw new InvalidObjectException("Deserialization class for '" + ret.commandName +"' did not refistered");
         }
 
         return ret;
