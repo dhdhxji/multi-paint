@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import dhdhxji.command.marshaller.Command;
 import dhdhxji.command.marshaller.Marshaller;
+import dhdhxji.command.marshaller.commandDataImpl.CircleCmd;
 import dhdhxji.command.marshaller.commandDataImpl.LoginCmd;
 import dhdhxji.command.marshaller.commandDataImpl.SetCmd;
 import dhdhxji.command.marshaller.commandDataImpl.SizeCmd;
@@ -22,7 +23,8 @@ public class Resolver implements ProcessCommandListener {
             .registerCommand("login", LoginCmd.class)
             .registerCommand("set", SetCmd.class)
             .registerCommand("size", SizeCmd.class)
-            .registerCommand("strip", StripCmd.class);
+            .registerCommand("strip", StripCmd.class)
+            .registerCommand("circle", CircleCmd.class);
     }
 
     public void process_command(
@@ -50,6 +52,24 @@ public class Resolver implements ProcessCommandListener {
                     new SetCmd(reqData.x, reqData.y, reqData.color)
                 );
                 server.broadcast(serializeCommand(response));
+            } else if(request.commandName.equals("circle")) {
+                final CircleCmd reqData = (CircleCmd)request.commandData;
+                
+                final int radius = reqData.radius;
+                final int sqPointRadius = radius*radius;
+                final int color = reqData.color;
+                final int x = reqData.x;
+                final int y = reqData.y;
+                
+                for(int yd = -radius; yd < radius; ++yd) {
+                    final int chordArm = (int)Math.sqrt(sqPointRadius - yd*yd);
+                    
+                    for(int xd = -chordArm; xd < chordArm; ++xd) {
+                        _drawer.setPix(x+xd, y+yd, color);
+                    }
+                }
+
+                server.broadcast(serializeCommand(request));
             }
         } catch(InvalidObjectException e) {
             //shit happanes, command probably has unsupported 

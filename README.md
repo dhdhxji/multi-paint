@@ -39,6 +39,20 @@ Input commands:
     }
   }
   ```
+* Add circle ont the canvas:
+  ```json
+  {
+    "command": {
+      "command-name": "circle",
+      "command-data": {
+        "x": 42,  //x coordinate of center
+        "y": 42,  //y coordiante of center
+        "radius": 42, //circle radius
+        "color": 1234 //24-bit RGB color
+      }
+    }
+  }
+  ```
 * Request rect, requests part of pixmap from the server: 
   > :warning: This feature will not be implemented soon
   ```json
@@ -86,14 +100,28 @@ Output commands:
   }
   ```
 * Size. Tell size of the pixmap to client 
-```json
-{
-  "command": {
-    "commnad-name": "size",
-    "command-data": {
-      "w": 42,
-      "h": 42,
+  ```json
+  {
+    "command": {
+      "commnad-name": "size",
+      "command-data": {
+        "w": 42,
+        "h": 42,
+      }
     }
   }
-}
-```
+  ```
+* Add circle ont the canvas:
+  ```json
+  {
+    "command": {
+      "command-name": "circle",
+      "command-data": {
+        "x": 42,  //x coordinate of center
+        "y": 42,  //y coordiante of center
+        "radius": 42, //circle radius
+        "color": 1234 //24-bit RGB color
+      }
+    }
+  }
+  ```
