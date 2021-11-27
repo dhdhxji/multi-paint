@@ -102,6 +102,10 @@ public class ConnectionManager extends Thread {
         }
     }
 
+    protected void processClientCommand(IdItemHandle client, String command) {
+        _commandHandler.process_command(this, client, command);
+    }
+
     public void stopServer() {
         this.interrupt();
         try {
@@ -197,10 +201,10 @@ public class ConnectionManager extends Thread {
                         throw new IOException();
                     }
 
-                    _commandHandler.process_command(
-                        ConnectionManager.this,
+                    ConnectionManager.this.processClientCommand(
                         _client_handle, 
-                        command);
+                        command
+                    );
                 }
                 catch (IOException e) {
                     System.err.print("Client disconnected");
