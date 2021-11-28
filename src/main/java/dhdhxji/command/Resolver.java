@@ -15,6 +15,7 @@ import dhdhxji.connection_manager.Message;
 import dhdhxji.connection_manager.ProcessCommandListener;
 import dhdhxji.connection_manager.IdMap.IdItemHandle;
 import dhdhxji.pixmap.DrawInterface;
+import dhdhxji.pixmap.Strip;
 
 public class Resolver implements ProcessCommandListener {
     public Resolver(DrawInterface drawer){
@@ -86,36 +87,15 @@ public class Resolver implements ProcessCommandListener {
     private void sendStrip(ConnectionManager mng, IdItemHandle client) 
         throws InvalidObjectException 
     {
-        int startXPos = 0;
-        int startYPos = 0;
-        Vector<Integer> pix_to_send = new Vector<Integer>();
+        Strip[] strips = _drawer.getNonZeroStrips();
 
-        for(int y = 0; y < _drawer.getHeigth(); ++y) {
-            for(int x = 0; x < _drawer.getWidth(); ++x) {
-                int color = _drawer.getPix(x, y); 
-                
-                if(color != 0xffffff) {
-                    pix_to_send.add(color);
-                } else {
-                    if(pix_to_send.size() != 0) {
-                        int[] intArr = new int[pix_to_send.size()];
-                        for(int i = 0; i < pix_to_send.size(); ++i) {
-                            intArr[i] = pix_to_send.get(i).intValue();
-                        }
-    
-                        Command stripResp = new Command(
-                            "strip",
-                            new StripCmd(startXPos, startYPos, intArr)
-                        );
-    
-                        mng.send(serializeCommand(stripResp), client);
-                        pix_to_send.clear();
-                    }
- 
-                    startXPos = x+1;
-                    startYPos = y + Math.max(0, (x+1-_drawer.getWidth() + 1));//(x+1 == _drawer.getWidth()); 
-                }
-            }
+        for(Strip strip: strips) {
+            Command stripResp = new Command(
+                "strip",
+                new StripCmd(strip.x_start, strip.y_start, strip.colors)
+            );
+
+            mng.send(serializeCommand(stripResp), client);
         }
     }
 
