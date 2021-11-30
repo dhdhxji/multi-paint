@@ -97,9 +97,10 @@ public class RedisPixmap extends DrawPixmap {
         
         do {
             r = _jedis.scan(iterator, p);
+            iterator = r.getCursor();
             keys.addAll(r.getResult());
         }
-        while( !r.getCursor().equals("0") );
+        while( !iterator.equals("0") );
 
         if(keys.size() == 0) {
             return;
