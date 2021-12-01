@@ -1,6 +1,7 @@
 package dhdhxji.command;
 
 import java.io.InvalidObjectException;
+import java.util.Arrays;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -123,8 +124,13 @@ public class Resolver implements ProcessCommandListener {
         public void run() {
             while(true) {
                 try {
-                    Pixel[] item = _pixelBroadcastQueue.take(); 
-                    _drawer.setMultiPix(item);
+                    Vector<Pixel> items = new Vector<>();
+                    items.addAll(Arrays.asList(_pixelBroadcastQueue.take())); 
+                    for(int i = 0; i < _pixelBroadcastQueue.size(); ++i) {
+                        items.addAll(Arrays.asList(_pixelBroadcastQueue.take()));
+                    }
+                    
+                    _drawer.setMultiPix(items.toArray(new Pixel[items.size()]));
 
                     if(_sender.isInterrupted()) {
                         return;
