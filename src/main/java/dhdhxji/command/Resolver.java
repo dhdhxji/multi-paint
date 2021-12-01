@@ -2,6 +2,8 @@ package dhdhxji.command;
 
 import java.io.InvalidObjectException;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import dhdhxji.command.marshaller.Command;
 import dhdhxji.command.marshaller.Marshaller;
@@ -27,6 +29,10 @@ public class Resolver implements ProcessCommandListener {
             .registerCommand("size", SizeCmd.class)
             .registerCommand("strip", StripCmd.class)
             .registerCommand("circle", CircleCmd.class);
+
+
+        _sender = new Thread(new Sender());
+        _sender.start();
     }
 
     public void process_command(
@@ -72,7 +78,8 @@ public class Resolver implements ProcessCommandListener {
                     }
                 }
 
-                _drawer.setMultiPix(circle.toArray(new Pixel[circle.size()]));
+                //_drawer.setMultiPix(circle.toArray(new Pixel[circle.size()]));
+                _pixelBroadcastQueue.add(circle.toArray(new Pixel[circle.size()]));
 
                 server.broadcast(serializeCommand(request));
             }
@@ -107,7 +114,31 @@ public class Resolver implements ProcessCommandListener {
         return _commandMarshaller;
     }
 
+    public void stop() {
+        _sender.interrupt();
+    }
+
+    private class Sender implements Runnable {
+        @Override
+        public void run() {
+            while(true) {
+                try {
+                    Pixel[] item = _pixelBroadcastQueue.take(); 
+                    _drawer.setMultiPix(item);
+
+                    if(_sender.isInterrupted()) {
+                        return;
+                    }
+                } catch(InterruptedException e) {
+                    //thread interrut from outside, exit
+                    return;
+                }          
+            }
+        }
+    }
 
     private DrawInterface _drawer = null;
     private Marshaller _commandMarshaller = null;
+    private BlockingQueue<Pixel[]> _pixelBroadcastQueue = new LinkedBlockingQueue<>();
+    private Thread _sender;
 }
