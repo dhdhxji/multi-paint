@@ -91,7 +91,9 @@ public class RedisPixmap extends DrawPixmap {
         super.setMultiPix(pix);
 
         if(keysvalues.size() != 0) {
-            _jedis.mset(keysvalues.toArray(new String[keysvalues.size()]));
+            synchronized(_jedis) {
+                _jedis.mset(keysvalues.toArray(new String[keysvalues.size()]));
+            }
         }
         
     }
@@ -123,7 +125,9 @@ public class RedisPixmap extends DrawPixmap {
         ScanResult<String> r = null;
         
         do {
-            r = _jedis.scan(iterator, p);
+            synchronized(_jedis) {
+                r = _jedis.scan(iterator, p);
+            }
             iterator = r.getCursor();
             keys.addAll(r.getResult());
         }
@@ -133,7 +137,10 @@ public class RedisPixmap extends DrawPixmap {
             return;
         }
 
-        List<String> res = _jedis.mget(keys.toArray(new String[keys.size()]));
+        List<String> res = null;
+        synchronized(_jedis) {
+            res = _jedis.mget(keys.toArray(new String[keys.size()]));
+        }
 
         for(int i = 0; i < keys.size(); ++i) {
             String key = keys.get(i);
