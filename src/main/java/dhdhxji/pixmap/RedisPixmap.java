@@ -69,6 +69,19 @@ public class RedisPixmap extends DrawPixmap {
         }    
     }
 
+    @Override
+    public void setMultiPix(Pixel[] pix) {
+        super.setMultiPix(pix);
+
+        String[] keysvalues = new String[pix.length*2];
+        for(int i = 0; i < pix.length; ++i) {
+            keysvalues[i*2] = pix[i].pos.x + ";" + pix[i].pos.y;
+            keysvalues[i*2+1] = String.valueOf(pix[i].color);
+        }
+
+        _jedis.mset(keysvalues);
+    }
+
 /*     @Override
     public Strip[] getNonZeroStrips() {
         String iterator = "0";

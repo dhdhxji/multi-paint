@@ -35,6 +35,25 @@ public class DrawPixmap implements DrawInterface {
     }
 
     @Override
+    public void setMultiPix(Pixel[] pix) {
+        for(Pixel p: pix) {
+            setPix(p.pos.x, p.pos.y, p.color);
+        }
+    }
+
+    @Override
+    public Pixel[] getMultiPix(Vec2[] pos) {
+        Pixel[] p = new Pixel[pos.length];
+
+        for(int i = 0; i < pos.length; ++i) {
+            p[i].pos = pos[i];
+            p[i].color = getPix(pos[i].x, pos[i].y);
+        }
+
+        return p;
+    }
+
+    @Override
     public Strip[] getNonZeroStrips() {
         Vector<Strip> strips = new Vector<>();
 
