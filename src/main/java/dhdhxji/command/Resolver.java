@@ -15,6 +15,7 @@ import dhdhxji.connection_manager.Message;
 import dhdhxji.connection_manager.ProcessCommandListener;
 import dhdhxji.connection_manager.IdMap.IdItemHandle;
 import dhdhxji.pixmap.DrawInterface;
+import dhdhxji.pixmap.Pixel;
 import dhdhxji.pixmap.Strip;
 
 public class Resolver implements ProcessCommandListener {
@@ -62,13 +63,16 @@ public class Resolver implements ProcessCommandListener {
                 final int x = reqData.x;
                 final int y = reqData.y;
                 
+                final Vector<Pixel> circle = new Vector<>();
                 for(int yd = -radius; yd < radius; ++yd) {
                     final int chordArm = (int)Math.sqrt(sqPointRadius - yd*yd);
                     
                     for(int xd = -chordArm; xd < chordArm; ++xd) {
-                        _drawer.setPix(x+xd, y+yd, color);
+                        circle.add(new Pixel(x+xd, y+yd, color));
                     }
                 }
+
+                _drawer.setMultiPix(circle.toArray(new Pixel[circle.size()]));
 
                 server.broadcast(serializeCommand(request));
             }

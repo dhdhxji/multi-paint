@@ -71,15 +71,29 @@ public class RedisPixmap extends DrawPixmap {
 
     @Override
     public void setMultiPix(Pixel[] pix) {
-        super.setMultiPix(pix);
-
-        String[] keysvalues = new String[pix.length*2];
+       // String[] keysvalues = new String[pix.length*2];
+        Vector<String> keysvalues = new Vector<>();
+        
         for(int i = 0; i < pix.length; ++i) {
-            keysvalues[i*2] = pix[i].pos.x + ";" + pix[i].pos.y;
-            keysvalues[i*2+1] = String.valueOf(pix[i].color);
+            int x = pix[i].pos.x;
+            int y = pix[i].pos.y;
+            int color = pix[i].color;
+
+            try {
+                if(getPix(x, y) == color) {
+                    continue;
+                }
+            } catch(ArrayIndexOutOfBoundsException e) {/*Do nothing*/}
+            keysvalues.add(x + ";" + y);
+            keysvalues.add(String.valueOf(color));
         }
 
-        _jedis.mset(keysvalues);
+        super.setMultiPix(pix);
+
+        if(keysvalues.size() != 0) {
+            _jedis.mset(keysvalues.toArray(new String[keysvalues.size()]));
+        }
+        
     }
 
 /*     @Override
