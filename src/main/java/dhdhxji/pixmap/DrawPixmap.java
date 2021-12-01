@@ -66,6 +66,10 @@ public class DrawPixmap implements DrawInterface {
                 int color = getPix(x, y); 
                 
                 if(color != 0xffffff) {
+                    if(pix_to_send.size() == 0) {
+                        startXPos = x;
+                        startYPos = y;
+                    }
                     pix_to_send.add(color);
                 } else {
                     if(pix_to_send.size() != 0) {
@@ -80,12 +84,22 @@ public class DrawPixmap implements DrawInterface {
                         s.y_start = startYPos;
                         s.colors = intArr;
                         strips.add(s);
-                    }
- 
-                    startXPos = x+1;
-                    startYPos = y + Math.max(0, (x+1-getWidth() + 1));//(x+1 == _drawer.getWidth()); 
+                    } 
                 }
             }
+        }
+
+        if(pix_to_send.size() != 0) {
+            int[] intArr = new int[pix_to_send.size()];
+            for(int i = 0; i < pix_to_send.size(); ++i) {
+                intArr[i] = pix_to_send.get(i).intValue();
+            }
+
+            Strip s = new Strip();
+            s.x_start = startXPos;
+            s.y_start = startYPos;
+            s.colors = intArr;
+            strips.add(s);
         }
 
         return strips.toArray(new Strip[strips.size()]);
