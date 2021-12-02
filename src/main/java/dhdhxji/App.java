@@ -6,15 +6,23 @@ import java.io.InputStreamReader;
 
 import dhdhxji.command.Resolver;
 import dhdhxji.connection_manager.ConnectionManager;
+import dhdhxji.connection_manager.RedisConnectionManager;
 import dhdhxji.pixmap.DrawInterface;
-import dhdhxji.pixmap.DrawPixmap;
+import dhdhxji.pixmap.RedisPixmap;
 
 public class App 
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws Exception
     {
+        String redis_addr = System.getenv("REDIS_ADDR");
+        if(redis_addr == null) {
+            System.out.println("WARN: REDIS_ADDR not specified, using localhost");
+            redis_addr = "localhost";
+        }
+        
+
         //Main draw interface
-        DrawInterface mainDrawer = new DrawPixmap(1920, 1080);
+        DrawInterface mainDrawer = new RedisPixmap(redis_addr, 256, 256);
         
         //Command resolver: parse, deserialize and execute commands
         Resolver mainResolver = new Resolver(mainDrawer);
@@ -23,7 +31,7 @@ public class App
         //data between clients and ProcessCommandListener interface
         //(Resolver in this particular example)
         ConnectionManager mainConnectionManager = 
-            new ConnectionManager(mainResolver, 3113);
+            new RedisConnectionManager(redis_addr, mainResolver, 3113);
 
         //Run the server
         System.out.println("Starting the server");
@@ -46,6 +54,7 @@ public class App
             }
         }
 
+        mainResolver.stop();
         mainConnectionManager.stopServer();
         System.out.println("Server successfully stopped");
     }
