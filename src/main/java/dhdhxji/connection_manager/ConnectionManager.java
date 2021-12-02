@@ -46,7 +46,7 @@ public class ConnectionManager extends Thread {
             _listenSocket.setSoTimeout(1000);
         }
         catch(IOException e) {
-            System.err.print("Can not start connection maanger: " + e);
+            System.err.println("Can not start connection manager: " + e);
             return;
         }
 
@@ -59,7 +59,7 @@ public class ConnectionManager extends Thread {
         while(true) {
             try {
                 Socket sock = _listenSocket.accept();
-                System.out.print("New client connection");
+                //System.out.println("New client connection");
 
                 //store client
                 Client client = new Client();
@@ -189,7 +189,7 @@ public class ConnectionManager extends Thread {
         }
 
         public void run() {
-            System.out.print("New client thread");
+            //System.out.print("New client thread");
 
             BufferedReader reader = _clients.get(_client_handle).read;
 
@@ -207,7 +207,7 @@ public class ConnectionManager extends Thread {
                     );
                 }
                 catch (IOException e) {
-                    System.err.print("Client disconnected");
+                    //System.err.print("Client disconnected");
                     freeClientResources(_client_handle);
                     return;
                 }
