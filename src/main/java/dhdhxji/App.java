@@ -38,20 +38,26 @@ public class App
         mainConnectionManager.start();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while(true) {
-            String cmd = null;
-            try {
-                System.out.print("> ");
-                cmd = in.readLine();
-            } catch(IOException e){
-                break;
+        
+        // Check is stdin & stdout are present
+        if(System.console() != null) {
+            while(true) {
+                String cmd = null;
+                try {
+                    System.out.print("> ");
+                    cmd = in.readLine();
+                } catch(IOException e){
+                    break;
+                }
+    
+                if(cmd.equals("exit")){
+                    break;
+                } else {
+                    System.out.println("Unknown command. Type 'exit' for exit.");
+                }
             }
-
-            if(cmd.equals("exit")){
-                break;
-            } else {
-                System.out.println("Unknown command. Type 'exit' for exit.");
-            }
+        } else {
+            mainConnectionManager.join();
         }
 
         mainResolver.stop();
