@@ -2,9 +2,7 @@ package dhdhxji.pixmap;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class DrawPixmapTest {
     @Test
@@ -29,17 +27,6 @@ public class DrawPixmapTest {
                 assertEquals(y*200+x, p.getPix(x, y));
             }
         }
-    }
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @Test
-    public void testOutOfBounds() {
-        DrawPixmap p = new DrawPixmap(200, 200);
-
-        exception.expect(IndexOutOfBoundsException.class);
-        p.setPix(201, 201, 0);
     }
 
     @Test
