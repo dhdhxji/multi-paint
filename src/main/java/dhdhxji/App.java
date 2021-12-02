@@ -14,7 +14,12 @@ public class App
 {
     public static void main( String[] args ) throws Exception
     {
-        String redis_addr = "localhost";
+        String redis_addr = System.getenv("REDIS_ADDR");
+        if(redis_addr == null) {
+            System.out.println("WARN: REDIS_ADDR not specified, using localhost");
+            redis_addr = "localhost";
+        }
+        
 
         //Main draw interface
         DrawInterface mainDrawer = new RedisPixmap(redis_addr, 256, 256);
