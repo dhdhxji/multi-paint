@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: primary-deployment
+  name: redis-primary-deployment
   labels:
     name: redis-primary
 spec:
@@ -15,7 +15,7 @@ spec:
       labels:
         name: redis-primary
     spec:
-      subdomain: primary
+      subdomain: redis-primary
       containers:
       - name: redis
         image: redis:3.2.0-alpine
@@ -30,7 +30,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: replica-deployment
+  name: redis-replica-deployment
   labels:
     name: redis-replica
 spec:
@@ -43,7 +43,7 @@ spec:
       labels:
         name: redis-replica
     spec:
-      subdomain: replica
+      subdomain: redis-replica
       containers:
       - name: redis
         image: redis:3.2.0-alpine
@@ -51,7 +51,7 @@ spec:
           - "redis-server"
         args:
           - "--slaveof"
-          - "primary.default.svc.cluster.local"
+          - "redis-primary.default.svc.cluster.local"
           - "6379"
           - "--protected-mode"
           - "no"   
