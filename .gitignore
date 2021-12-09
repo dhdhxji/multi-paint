@@ -3,3 +3,8 @@ target
 .classpath
 .project
 .vscode
+.terraform
+.terraform.lock.hcl
+*.tfstate*
+terraform.tfvars
+azurek8s.yml
