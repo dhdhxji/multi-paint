@@ -1,0 +1,19 @@
+version: "3.3"
+
+services:
+  redis:
+    image: redis
+
+  multi-paint:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 3113:3113
+    depends_on:
+      - redis
+    environment:
+      REDIS_ADDR: redis
+      CANVAS_WIDTH: 700
+      CANVAS_HEIGHT: 500
+    

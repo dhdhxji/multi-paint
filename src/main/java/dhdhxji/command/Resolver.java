@@ -1,7 +1,10 @@
 package dhdhxji.command;
 
 import java.io.InvalidObjectException;
+import java.util.Arrays;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import dhdhxji.command.marshaller.Command;
 import dhdhxji.command.marshaller.Marshaller;
@@ -15,6 +18,8 @@ import dhdhxji.connection_manager.Message;
 import dhdhxji.connection_manager.ProcessCommandListener;
 import dhdhxji.connection_manager.IdMap.IdItemHandle;
 import dhdhxji.pixmap.DrawInterface;
+import dhdhxji.pixmap.Pixel;
+import dhdhxji.pixmap.Strip;
 
 public class Resolver implements ProcessCommandListener {
     public Resolver(DrawInterface drawer){
@@ -25,6 +30,10 @@ public class Resolver implements ProcessCommandListener {
             .registerCommand("size", SizeCmd.class)
             .registerCommand("strip", StripCmd.class)
             .registerCommand("circle", CircleCmd.class);
+
+
+        _sender = new Thread(new Sender());
+        _sender.start();
     }
 
     public void process_command(
@@ -61,17 +70,17 @@ public class Resolver implements ProcessCommandListener {
                 final int x = reqData.x;
                 final int y = reqData.y;
                 
+                final Vector<Pixel> circle = new Vector<>();
                 for(int yd = -radius; yd < radius; ++yd) {
                     final int chordArm = (int)Math.sqrt(sqPointRadius - yd*yd);
                     
                     for(int xd = -chordArm; xd < chordArm; ++xd) {
-                        try {
-                            _drawer.setPix(x+xd, y+yd, color);
-                        } catch(IndexOutOfBoundsException e) {
-                            continue;
-                        }
+                        circle.add(new Pixel(x+xd, y+yd, color));
                     }
                 }
+
+                //_drawer.setMultiPix(circle.toArray(new Pixel[circle.size()]));
+                _pixelBroadcastQueue.add(circle.toArray(new Pixel[circle.size()]));
 
                 server.broadcast(serializeCommand(request));
             }
@@ -90,36 +99,15 @@ public class Resolver implements ProcessCommandListener {
     private void sendStrip(ConnectionManager mng, IdItemHandle client) 
         throws InvalidObjectException 
     {
-        int startXPos = 0;
-        int startYPos = 0;
-        Vector<Integer> pix_to_send = new Vector<Integer>();
+        Strip[] strips = _drawer.getNonZeroStrips();
 
-        for(int y = 0; y < _drawer.getHeigth(); ++y) {
-            for(int x = 0; x < _drawer.getWidth(); ++x) {
-                int color = _drawer.getPix(x, y); 
-                
-                if(color != 0xffffff) {
-                    pix_to_send.add(color);
-                } else {
-                    if(pix_to_send.size() != 0) {
-                        int[] intArr = new int[pix_to_send.size()];
-                        for(int i = 0; i < pix_to_send.size(); ++i) {
-                            intArr[i] = pix_to_send.get(i).intValue();
-                        }
-    
-                        Command stripResp = new Command(
-                            "strip",
-                            new StripCmd(startXPos, startYPos, intArr)
-                        );
-    
-                        mng.send(serializeCommand(stripResp), client);
-                        pix_to_send.clear();
-                    }
- 
-                    startXPos = x+1;
-                    startYPos = y + Math.max(0, (x+1-_drawer.getWidth() + 1));//(x+1 == _drawer.getWidth()); 
-                }
-            }
+        for(Strip strip: strips) {
+            Command stripResp = new Command(
+                "strip",
+                new StripCmd(strip.x_start, strip.y_start, strip.colors)
+            );
+
+            mng.send(serializeCommand(stripResp), client);
         }
     }
 
@@ -127,7 +115,36 @@ public class Resolver implements ProcessCommandListener {
         return _commandMarshaller;
     }
 
+    public void stop() {
+        _sender.interrupt();
+    }
+
+    private class Sender implements Runnable {
+        @Override
+        public void run() {
+            while(true) {
+                try {
+                    Vector<Pixel> items = new Vector<>();
+                    items.addAll(Arrays.asList(_pixelBroadcastQueue.take())); 
+                    for(int i = 0; i < _pixelBroadcastQueue.size(); ++i) {
+                        items.addAll(Arrays.asList(_pixelBroadcastQueue.take()));
+                    }
+                    
+                    _drawer.setMultiPix(items.toArray(new Pixel[items.size()]));
+
+                    if(_sender.isInterrupted()) {
+                        return;
+                    }
+                } catch(InterruptedException e) {
+                    //thread interrut from outside, exit
+                    return;
+                }          
+            }
+        }
+    }
 
     private DrawInterface _drawer = null;
     private Marshaller _commandMarshaller = null;
+    private BlockingQueue<Pixel[]> _pixelBroadcastQueue = new LinkedBlockingQueue<>();
+    private Thread _sender;
 }

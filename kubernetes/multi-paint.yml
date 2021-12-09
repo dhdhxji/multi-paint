@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multi-paint
+spec:
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 3113
+    targetPort: 3113
+    name: multi-paint-port
+  selector:
+    name: multi-paint
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-paint
+  labels:
+    name: multi-paint
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      name: multi-paint
+  template:
+    metadata:
+      labels:
+        name: multi-paint
+    spec:
+      subdomain: multi-paint
+      containers:
+      - name: multi-paint
+        image: sashakovalchuk/multi-paint:0.2 
+        ports:
+        - containerPort: 3113
+        env:
+        - name: REDIS_ADDR
+          value: "redis-primary.default.svc.cluster.local"
+        - name: CANVAS_WIDTH
+          value: "700"
+        - name: CANVAS_HEIGHT
+          value: "500"
