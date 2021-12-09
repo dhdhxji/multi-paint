@@ -19,10 +19,25 @@ public class App
             System.out.println("WARN: REDIS_ADDR not specified, using localhost");
             redis_addr = "localhost";
         }
+
+        
+        String width = System.getenv("CANVAS_WIDTH");
+        if(width == null) {
+            System.out.println("WARN: CANVAS_WIDTH not specified, using localhost");
+            width = "128";
+        }
+        String height = System.getenv("CANVAS_HEIGHT");
+        if(height == null) {
+            System.out.println("WARN: CANVAS_HEIGHT not specified, using localhost");
+            height = "128";
+        }
+
+        int w = Integer.parseInt(width);
+        int h = Integer.parseInt(height);
         
 
         //Main draw interface
-        DrawInterface mainDrawer = new RedisPixmap(redis_addr, 256, 256);
+        DrawInterface mainDrawer = new RedisPixmap(redis_addr, w, h);
         
         //Command resolver: parse, deserialize and execute commands
         Resolver mainResolver = new Resolver(mainDrawer);

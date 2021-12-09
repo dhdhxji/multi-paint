@@ -14,4 +14,6 @@ services:
       - redis
     environment:
       REDIS_ADDR: redis
+      CANVAS_WIDTH: 700
+      CANVAS_HEIGHT: 500
     

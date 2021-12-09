@@ -32,9 +32,13 @@ spec:
       subdomain: multi-paint
       containers:
       - name: multi-paint
-        image: sashakovalchuk/multi-paint:0.1  
+        image: sashakovalchuk/multi-paint:0.2 
         ports:
         - containerPort: 3113
         env:
         - name: REDIS_ADDR
           value: "redis-primary.default.svc.cluster.local"
+        - name: CANVAS_WIDTH
+          value: "700"
+        - name: CANVAS_HEIGHT
+          value: "500"
