@@ -16,9 +16,6 @@ resource "azurerm_resource_group" "k8s" {
     location = var.location
 }
 
-resource "random_id" "log_analytics_workspace_name_suffix" {
-    byte_length = 8
-}
 
 resource "azurerm_kubernetes_cluster" "k8s" {
     name                = var.cluster_name
