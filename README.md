@@ -1,5 +1,5 @@
 # Multi-paint server. Multiplayer paint server
-This project was developed for lab. There is multi user multi-thread server application for simultaneously receiving and processing draw commands from multiple users.
+This project was developed for a lab. There is a multi-user multi-thread server application for simultaneously receiving and processing draw commands from multiple users.
 
 # How to use
 ## Run with maven
@@ -29,11 +29,11 @@ IMPORTANT: In all cases above, Redis should be run on localhost, or its address 
 ```
 
 ## Run with k8s
-This app is able to run on the Kubernetes cluster. To setup it, execute:
+This app is able to run on the Kubernetes cluster. To set up it, execute:
 ```
 kubectl apply -f kubernetes
 ```
-and get the external IP address of the multi-paint server to access it.
+and get the external IP address of the multi-paint service to access it.
 
 ## Run with k8s in Azure
 This app is adapted to set up and run in the Azure AKS environment. To run it, put the Azure active directory credentials into tf/terrafor.tfvars, like this:
@@ -50,7 +50,7 @@ and run:
 To use this application, You need the appropriate [client](https://github.com/dhdhxji/multi-paint-client). 
 
 # Available commands on the server
-All the commands has the next structure: it's json string with the next fields: 
+All the commands have the next structure: it's JSON string with the following fields: 
 ```json
 {
   "command": {
@@ -87,7 +87,7 @@ Input commands:
     }
   }
   ```
-* Add circle ont the canvas:
+* Add circle on the canvas:
   ```json
   {
     "command": {
@@ -134,7 +134,7 @@ Output commands:
     }
   }
   ```
-* Set strip. sent data is sequence of colors starting from specified point
+* Set strip. Send data as a sequence of colors starting from a specified point.
   ```json
   {
     "command": {
@@ -147,7 +147,7 @@ Output commands:
     }
   }
   ```
-* Size. Tell size of the pixmap to client 
+* Size. Tell the size of the pixmap to the client 
   ```json
   {
     "command": {
@@ -159,7 +159,7 @@ Output commands:
     }
   }
   ```
-* Add circle ont the canvas:
+* Add circle on the canvas:
   ```json
   {
     "command": {
