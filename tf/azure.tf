@@ -6,13 +6,13 @@ terraform {
     }
   }
 
-  # backend "azurerm" {
-  #   resource_group_name  = "rg-multi-paint-actions"
-  #   storage_account_name = "terraformgithubactions"
-  #   container_name       = "tfstate"
-  #   key                  = "terraform.tfstate"
-  #   use_oidc             = true
-  # }
+  backend "azurerm" {
+    resource_group_name  = "rg-terraform-github-actions-state"
+    storage_account_name = "multipaintterraformstate"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+    #use_oidc             = true
+  }
 }
 provider "azurerm" {
   features {}
