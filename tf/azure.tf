@@ -6,17 +6,17 @@ terraform {
     }
   }
 
-  backend "azurerm" {
-    resource_group_name  = "rg-multi-paint-actions"
-    storage_account_name = "terraformgithubactions"
-    container_name       = "tfstate"
-    key                  = "terraform.tfstate"
-    use_oidc             = true
-  }
+  # backend "azurerm" {
+  #   resource_group_name  = "rg-multi-paint-actions"
+  #   storage_account_name = "terraformgithubactions"
+  #   container_name       = "tfstate"
+  #   key                  = "terraform.tfstate"
+  #   use_oidc             = true
+  # }
 }
 provider "azurerm" {
   features {}
-  use_oidc = true
+  #use_oidc = true
 }
 
 
@@ -36,7 +36,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     admin_username = "ubuntu"
 
     ssh_key {
-      key_data = file(var.ssh_public_key)
+      key_data = var.ssh_public_key
     }
   }
 
