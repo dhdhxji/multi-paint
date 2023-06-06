@@ -192,6 +192,7 @@ jobs:
       run: kubectl apply -f kubernetes
 
     - name: Get app access point
+      id: get-app-ip
       env:
         KUBECONFIG: /tmp/config.yaml
       run: |
@@ -209,3 +210,10 @@ jobs:
         echo "$external_ip" >> $GITHUB_OUTPUT
         echo "</details>" >> $GITHUB_OUTPUT
         echo "${delimiter}" >> $GITHUB_OUTPUT
+
+    # Publish Terraform Plan as task summary
+    - name: Publish Terraform Plan to Task Summary
+      env:
+        SUMMARY: ${{ steps.get-app-ip.outputs.summary }}
+      run: |
+        echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
