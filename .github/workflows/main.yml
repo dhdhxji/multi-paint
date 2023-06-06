@@ -163,7 +163,7 @@ jobs:
       working-directory: ./tf
       run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        KUBE_CONFIG=$(terraform output -raw kube_config)
+        KUBE_CONFIG=$(terraform output -raw kube_config | base64)
         echo "k8s_config<<$EOF" >> $GITHUB_OUTPUT
         echo "$KUBE_CONFIG" >> $GITHUB_OUTPUT
         echo "$EOF" >> $GITHUB_OUTPUT
@@ -187,7 +187,7 @@ jobs:
       with:
         args: apply -f kubernetes
 
-        
+
     # - name: Install kubectl
     #   uses: tale/kubectl-action@v1
     #   with:
