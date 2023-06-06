@@ -168,6 +168,14 @@ jobs:
         echo "$KUBE_CONFIG" >> $GITHUB_OUTPUT
         echo "$EOF" >> $GITHUB_OUTPUT
 
+        echo "$KUBE_CONFIG" | base64 -d > /tmp/k8s.yml
+  
+    - name: Publish k8s config
+      uses: actions/upload-artifact@v3
+      with:
+        name: k8s.yml
+        path: /tmp/k8s.yml
+
           
   deploy-k8s:
     name: Deploy k8s cluster
