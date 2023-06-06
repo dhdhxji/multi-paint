@@ -183,18 +183,12 @@ jobs:
     - name: Store kube config file
       run: echo "${{ needs.terraform-apply.outputs.k8s-config }}" | base64 -d > /tmp/config.yml
 
-    - uses: actions-hub/kubectl@master
+    - uses: tale/kubectl-action@v1
+      with:
+        base64-kube-config: "Tm9uZQo="
+
+    - name: Apply kubernetes
       env:
         KUBECONFIG: /tmp/config.yml
       with:
         args: apply -f kubernetes
-
-
-    # - name: Install kubectl
-    #   uses: tale/kubectl-action@v1
-    #   with:
-    #     base64-kube-config: ${{ needs.terraform-apply.outputs.k8s-config }}
-
-    # - run: cat /home/runner/.kube/config
-
-    # - run: kubectl apply -f kubernetes
