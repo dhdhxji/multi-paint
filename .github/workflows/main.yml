@@ -163,8 +163,7 @@ jobs:
       working-directory: ./tf
       run: |
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        KUBE_CONFIG=$(terraform output -raw kube_config | base64)
-        echo "$KUBE_CONFIG"
+        KUBE_CONFIG=$(terraform output -raw kube_config | base64 -w 0)
         echo "k8s_config=$KUBE_CONFIG" >> $GITHUB_OUTPUT
         # echo "$(terraform output -raw kube_config | base64)" >> $GITHUB_OUTPUT
         echo "$EOF" >> $GITHUB_OUTPUT
