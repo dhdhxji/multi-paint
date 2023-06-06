@@ -190,5 +190,4 @@ jobs:
     - name: Apply kubernetes
       env:
         KUBECONFIG: /tmp/config.yml
-      with:
-        args: apply -f kubernetes
+      run: kubectl apply -f kubernetes
