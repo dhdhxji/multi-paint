@@ -180,10 +180,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - run: echo ${{ needs.terraform-apply.outputs.k8s-config }} | base64 -d > /tmp/config.yml
+
     #- run: echo ${{ needs.terraform-apply.outputs.k8s-config }}
     - uses: actions-hub/kubectl@master
       env:
-        KUBE_CONFIG: ${{ needs.terraform-apply.outputs.k8s-config }}
+        KUBECONFIG: /tmp/config.yml
       with:
         args: apply -f kubernetes
 
