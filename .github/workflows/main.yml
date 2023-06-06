@@ -190,3 +190,22 @@ jobs:
       env:
         KUBECONFIG: /tmp/config.yaml
       run: kubectl apply -f kubernetes
+
+    - name: Get app access point
+      env:
+        KUBECONFIG: /tmp/config.yaml
+      run: |
+        external_ip=""
+        while [ -z $external_ip ]; do
+            sleep 10
+            external_ip=$(kubectl get svc multi-paint --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+        done
+
+        delimiter="$(openssl rand -hex 8)"
+        echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+        echo "## Application IP address" >> $GITHUB_OUTPUT
+        echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "$external_ip" >> $GITHUB_OUTPUT
+        echo "</details>" >> $GITHUB_OUTPUT
+        echo "${delimiter}" >> $GITHUB_OUTPUT
