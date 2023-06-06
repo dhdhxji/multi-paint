@@ -181,11 +181,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - run: echo ${{ needs.terraform-apply.outputs.k8s-config }}
+    #- run: echo ${{ needs.terraform-apply.outputs.k8s-config }}
 
     - name: Install kubectl
       uses: tale/kubectl-action@v1
       with:
         base64-kube-config: ${{ needs.terraform-apply.outputs.k8s-config }}
+
+    - run: cat /home/runner/.kube/config
 
     - run: kubectl apply -f kubernetes
