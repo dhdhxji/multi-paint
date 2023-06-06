@@ -182,7 +182,6 @@ jobs:
 
     - run: echo ${{ needs.terraform-apply.outputs.k8s-config }} | base64 -d > /tmp/config.yml
 
-    #- run: echo ${{ needs.terraform-apply.outputs.k8s-config }}
     - uses: actions-hub/kubectl@master
       env:
         KUBECONFIG: /tmp/config.yml
