@@ -179,22 +179,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Store kube config file
-      run: echo "${{ needs.terraform-apply.outputs.k8s-config }}" | base64 -d > /tmp/config.yaml
-
     - uses: tale/kubectl-action@v1
       with:
-        base64-kube-config: "Tm9uZQo="
+        base64-kube-config: "${{ needs.terraform-apply.outputs.k8s-config }}"
 
     - name: Apply kubernetes
-      env:
-        KUBECONFIG: /tmp/config.yaml
       run: kubectl apply -f kubernetes
 
     - name: Get app access point
       id: get-app-ip
-      env:
-        KUBECONFIG: /tmp/config.yaml
       run: |
         external_ip=""
         while [ -z $external_ip ]; do
