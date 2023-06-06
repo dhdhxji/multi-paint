@@ -167,14 +167,7 @@ jobs:
         echo "k8s_config<<$EOF" >> $GITHUB_OUTPUT
         echo "$KUBE_CONFIG" >> $GITHUB_OUTPUT
         echo "$EOF" >> $GITHUB_OUTPUT
-  
-    - name: Publish k8s config
-      uses: actions/upload-artifact@v3
-      with:
-        name: k8s.yml
-        path: /tmp/k8s.yml
-
-          
+            
   deploy-k8s:
     name: Deploy k8s cluster
     runs-on: ubuntu-latest
